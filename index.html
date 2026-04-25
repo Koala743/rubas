@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KeyPass — Suscripción</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05060e;--surface:#090b18;--surface2:#0d1020;
+  --border:#161929;--border2:#1e2238;--border3:#252840;
+  --green:#00e87a;--red:#ff3b5c;--blue:#4cc9f0;
+  --purple:#7c3aed;--yellow:#f5c542;
+  --text:#c8d0e0;--text2:#8a94b0;--muted:#3a4260;
+  --mono:'IBM Plex Mono',monospace;--display:'Bebas Neue',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 47px,rgba(30,34,56,.25) 47px,rgba(30,34,56,.25) 48px),repeating-linear-gradient(90deg,transparent,transparent 47px,rgba(30,34,56,.1) 47px,rgba(30,34,56,.1) 48px);pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+.orb1{width:600px;height:600px;background:rgba(124,58,237,.05);top:-200px;left:-180px;}
+.orb2{width:500px;height:500px;background:rgba(0,232,122,.035);bottom:-150px;right:-120px;}
+.orb3{width:300px;height:300px;background:rgba(76,201,240,.03);top:50%;left:50%;transform:translate(-50%,-50%);}
+.wrap{position:relative;z-index:1;width:100%;max-width:440px;}
+.header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;}
+.logo{font-family:var(--display);font-size:54px;color:#fff;letter-spacing:4px;line-height:.9;}
+.logo em{color:var(--green);font-style:normal;}
+.subtitle{font-size:8px;letter-spacing:5px;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.profile-pill{display:flex;align-items:center;gap:8px;padding:5px 5px 5px 10px;background:var(--surface2);border:1px solid var(--border3);border-radius:99px;cursor:pointer;transition:.2s;min-width:0;max-width:160px;}
+.profile-pill:hover{background:rgba(255,255,255,.04);}
+.pill-email{font-size:9px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.pill-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;text-transform:uppercase;box-shadow:0 0 10px rgba(124,58,237,.4);}
+.menu-btn{background:var(--surface2);border:1px solid var(--border3);color:var(--text2);font-size:18px;width:38px;height:38px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0;line-height:1;}
+.menu-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(76,201,240,.06);}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;overflow:hidden;position:relative;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,var(--purple) 30%,var(--blue) 60%,transparent 95%);opacity:.7;pointer-events:none;}
+.screen{display:none;padding:24px;animation:fadeUp .25s ease both;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.lbl{font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:block;}
+input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--mono);font-size:13px;padding:12px 14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(76,201,240,.06);}
+.err-hint{font-size:9px;color:var(--red);min-height:16px;margin-bottom:10px;padding-left:2px;word-break:break-all;line-height:1.6;}
+.btn{width:100%;background:transparent;font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:12px;border-radius:5px;cursor:pointer;transition:.2s;text-transform:uppercase;}
+.btn-blue{border:1px solid var(--blue);color:var(--blue);}
+.btn-blue:hover{background:rgba(76,201,240,.08);box-shadow:0 0 15px rgba(76,201,240,.1);}
+.btn-green{border:1px solid var(--green);color:var(--green);}
+.btn-green:hover{background:rgba(0,232,122,.08);box-shadow:0 0 15px rgba(0,232,122,.1);}
+.btn-muted{border:1px solid var(--border2);color:var(--text2);}
+.btn-muted:hover{border-color:var(--text2);color:var(--text);}
+.btn:disabled{opacity:.4;cursor:default;pointer-events:none;}
+.setup-top{display:flex;flex-direction:column;align-items:center;margin-bottom:28px;text-align:center;}
+.setup-icon-ring{width:72px;height:72px;border-radius:50%;border:1px solid var(--border3);background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(76,201,240,.08));display:flex;align-items:center;justify-content:center;margin-bottom:14px;position:relative;}
+.setup-icon-ring::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(76,201,240,.12);}
+.setup-icon-ring svg{width:30px;height:30px;}
+.setup-title{font-family:var(--display);font-size:30px;letter-spacing:2px;color:#fff;margin-bottom:4px;}
+.setup-sub{font-size:10px;color:var(--text2);line-height:1.9;}
+.setup-divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+.setup-divider::before,.setup-divider::after{content:'';flex:1;height:1px;background:var(--border2);}
+.setup-divider span{font-size:9px;color:var(--muted);letter-spacing:2px;}
+.trust-row{display:flex;gap:8px;margin-top:14px;}
+.trust-badge{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:8px 6px;border-radius:4px;background:rgba(255,255,255,.02);border:1px solid var(--border);font-size:8px;color:var(--muted);}
+.status-bar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,.015);border:1px solid var(--border2);border-radius:6px;margin-bottom:14px;min-height:48px;}
+.s-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;position:relative;}
+.s-dot.green{background:var(--green);box-shadow:0 0 8px rgba(0,232,122,.8);}
+.s-dot.red{background:var(--red);box-shadow:0 0 6px rgba(255,59,92,.6);}
+.s-dot.check{background:var(--blue);box-shadow:0 0 6px rgba(76,201,240,.6);animation:blink .9s ease-in-out infinite;}
+.s-dot.yellow{background:var(--yellow);box-shadow:0 0 6px rgba(245,197,66,.6);}
+.s-dot.green::after,.s-dot.red::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1px solid currentColor;opacity:.3;animation:ripple 2s ease-out infinite;}
+.s-dot.green::after{border-color:var(--green);}
+.s-dot.red::after{border-color:var(--red);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes ripple{0%{transform:scale(1);opacity:.4}100%{transform:scale(2.2);opacity:0}}
+.s-info{flex:1;min-width:0;}
+.s-title{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;}
+.s-title.green{color:var(--green);}.s-title.red{color:var(--red);}.s-title.check{color:var(--blue);}.s-title.yellow{color:var(--yellow);}
+.s-meta{font-size:9px;color:var(--muted);margin-top:2px;}
+.s-key-block{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;max-width:160px;}
+.s-key-val{font-size:11px;font-weight:700;color:#fff;letter-spacing:1.5px;word-break:break-all;text-align:right;line-height:1.3;}
+.s-key-actions{display:flex;align-items:center;gap:6px;}
+.s-key-exp{font-size:8px;color:var(--muted);white-space:nowrap;}
+.btn-copy-xs{background:transparent;border:1px solid rgba(0,232,122,.3);color:var(--green);font-family:var(--mono);font-size:8px;letter-spacing:1px;padding:4px 8px;border-radius:3px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.btn-copy-xs:hover{background:rgba(0,232,122,.1);}
+.first-seen{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--muted);padding:7px 14px;background:rgba(255,255,255,.01);border:1px solid var(--border);border-radius:4px;margin-bottom:14px;}
+.first-seen svg{width:10px;height:10px;flex-shrink:0;opacity:.5;}
+.plan-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.plan-icon-box{width:48px;height:48px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(0,232,122,.12));border:1px solid rgba(124,58,237,.25);display:flex;align-items:center;justify-content:center;}
+.plan-name{font-family:var(--display);font-size:22px;letter-spacing:1px;background:linear-gradient(135deg,#e2e8f0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.plan-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+.feats{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.feat{display:flex;align-items:center;gap:9px;font-size:11px;color:#6a7a9a;}
+.feat-dot{width:3px;height:3px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));flex-shrink:0;}
+.price-bar{display:flex;align-items:flex-end;justify-content:space-between;padding:11px 13px;margin-bottom:16px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:6px;}
+.price-num{font-family:var(--display);font-size:34px;color:#fff;line-height:1;}
+.price-cur{font-size:12px;color:var(--muted);margin-bottom:3px;}
+.price-badge{font-size:8px;letter-spacing:1.5px;color:var(--blue);background:rgba(76,201,240,.1);border:1px solid rgba(76,201,240,.2);padding:4px 10px;border-radius:20px;}
+.section-divider{height:1px;background:var(--border);margin:0 -24px 16px;}
+#paypal-wrap{position:relative;transition:opacity .3s;min-height:54px;}
+#paypal-wrap.locked{opacity:.3;pointer-events:none;user-select:none;}
+.lock-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);letter-spacing:1px;z-index:5;background:rgba(5,6,14,.5);border-radius:4px;}
+.secure{display:flex;align-items:center;justify-content:center;gap:6px;font-size:9px;color:var(--muted);margin-top:10px;}
+.secure svg{width:10px;height:10px;}
+.recover-banner{display:flex;align-items:center;gap:10px;padding:11px 13px;margin-top:12px;border-radius:5px;background:linear-gradient(135deg,rgba(76,201,240,.05),rgba(124,58,237,.05));border:1px solid rgba(76,201,240,.15);cursor:pointer;transition:.2s;}
+.recover-banner:hover{background:linear-gradient(135deg,rgba(76,201,240,.1),rgba(124,58,237,.1));border-color:rgba(76,201,240,.3);}
+.proc-wrap{display:flex;flex-direction:column;align-items:center;padding:48px 20px;gap:16px;text-align:center;}
+.spinner{width:48px;height:48px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-title{font-family:var(--display);font-size:20px;color:var(--blue);letter-spacing:2px;}
+.proc-sub{font-size:10px;color:var(--muted);line-height:1.9;}
+.bind-icon-ring{width:66px;height:66px;border-radius:50%;border:1px solid rgba(0,232,122,.25);background:linear-gradient(135deg,rgba(0,232,122,.1),rgba(124,58,237,.07));display:flex;align-items:center;justify-content:center;margin:0 auto 14px;position:relative;}
+.bind-icon-ring::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(0,232,122,.08);}
+.info-note{display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border-radius:5px;margin-bottom:12px;}
+.info-note.blue{background:rgba(76,201,240,.04);border:1px solid rgba(76,201,240,.12);}
+.info-note.yellow{background:rgba(245,197,66,.04);border:1px solid rgba(245,197,66,.18);}
+.info-note svg{flex-shrink:0;margin-top:1px;}
+.info-note-text{font-size:9px;line-height:1.8;}
+.info-note.blue .info-note-text{color:var(--muted);}
+.info-note.blue .info-note-text strong{color:var(--text2);}
+.info-note.yellow .info-note-text{color:#a0905a;}
+.info-note.yellow .info-note-text strong{color:var(--yellow);}
+.confirmed-badge{display:inline-flex;align-items:center;gap:5px;font-size:8px;letter-spacing:1.5px;padding:3px 10px;border-radius:20px;text-transform:uppercase;}
+.confirmed-badge.ok{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.3);color:var(--green);}
+.confirmed-badge.pending{background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.25);color:var(--yellow);}
+.modal-overlay{position:fixed;inset:0;background:rgba(5,6,14,.88);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:24px;width:100%;max-width:340px;position:relative;animation:popUp .2s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes popUp{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;border-radius:8px 8px 0 0;background:linear-gradient(90deg,transparent 5%,var(--yellow) 40%,transparent 95%);opacity:.6;}
+.modal-title{font-family:var(--display);font-size:22px;color:#fff;letter-spacing:2px;margin-bottom:6px;}
+.modal-sub{font-size:10px;color:var(--text2);line-height:1.8;margin-bottom:16px;}
+.modal-preview{padding:14px 16px;margin-bottom:16px;background:rgba(0,232,122,.05);border:1px solid rgba(0,232,122,.2);border-radius:6px;text-align:center;}
+.modal-preview .mp-lbl{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;}
+.modal-preview .mp-val{font-size:18px;font-weight:700;color:#fff;letter-spacing:2px;}
+.modal-btns{display:flex;gap:10px;}
+.modal-btns .btn{flex:1;}
+.suc-ring{width:66px;height:66px;border:2px solid var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;background:rgba(0,232,122,.07);box-shadow:0 0 30px rgba(0,232,122,.12);animation:pop .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.suc-title{font-family:var(--display);font-size:26px;color:var(--green);letter-spacing:2px;text-align:center;margin-bottom:4px;}
+.suc-sub{font-size:10px;color:var(--muted);line-height:1.8;margin-bottom:18px;text-align:center;}
+.info-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;}
+.ik{color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-size:8px;}
+.iv{color:var(--text);font-size:11px;}
+.iv.g{color:var(--green);}
+.iv.y{color:var(--yellow);}
+.err-ring{width:60px;height:60px;border:2px solid var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 14px;background:rgba(255,59,92,.07);}
+.err-title{font-family:var(--display);font-size:22px;color:var(--red);letter-spacing:1px;margin-bottom:8px;text-align:center;}
+.err-msg{font-size:10px;color:var(--muted);line-height:1.9;margin-bottom:16px;text-align:center;white-space:pre-line;}
+.rec-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.rec-icon-wrap{width:44px;height:44px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,rgba(76,201,240,.18),rgba(124,58,237,.12));border:1px solid rgba(76,201,240,.25);display:flex;align-items:center;justify-content:center;}
+.rec-info-box{font-size:10px;color:var(--muted);line-height:1.8;margin-bottom:18px;padding:10px 12px;background:rgba(76,201,240,.03);border:1px solid rgba(76,201,240,.08);border-radius:4px;}
+
+/* ══ DRAWER ══ */
+.drawer-overlay{position:fixed;inset:0;background:rgba(5,6,14,.75);z-index:200;display:none;backdrop-filter:blur(2px);}
+.drawer-overlay.open{display:block;animation:fadeIn .2s ease;}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:290px;background:var(--surface);border-left:1px solid var(--border2);z-index:201;padding:0;overflow-y:auto;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+.drawer::before{content:'';position:absolute;top:0;left:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--purple) 30%,var(--blue) 70%,transparent);opacity:.5;}
+.drawer.open{transform:translateX(0);}
+.drawer-head{padding:20px 18px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.drawer-head-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.drawer-title{font-family:var(--display);font-size:26px;letter-spacing:3px;color:#fff;}
+.drawer-close{background:transparent;border:1px solid var(--border2);color:var(--muted);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.drawer-close:hover{border-color:var(--red);color:var(--red);}
+.drawer-sub{font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+.drawer-body{padding:16px 18px;flex:1;}
+.drawer-section{display:flex;align-items:center;gap:7px;font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin:18px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.drawer-section:first-child{margin-top:0;}
+/* Selector de cuenta compacto tipo dropdown */
+.acc-selector{position:relative;margin-bottom:4px;}
+.acc-active-row{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;transition:.2s;user-select:none;}
+.acc-active-row:hover{border-color:var(--blue);background:rgba(76,201,240,.04);}
+.acc-active-row.open{border-color:var(--blue);border-bottom-left-radius:0;border-bottom-right-radius:0;border-bottom-color:transparent;}
+.acc-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.acc-info{flex:1;min-width:0;}
+.acc-email{font-size:9px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.acc-badge{font-size:7px;color:var(--green);letter-spacing:1px;margin-top:1px;}
+.acc-arrow{font-size:10px;color:var(--muted);transition:transform .2s;flex-shrink:0;}
+.acc-arrow.open{transform:rotate(180deg);}
+.acc-dropdown{display:none;border:1px solid var(--blue);border-top:none;border-bottom-left-radius:6px;border-bottom-right-radius:6px;background:var(--surface2);overflow:hidden;}
+.acc-dropdown.open{display:block;}
+.acc-dropdown-item{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;transition:.15s;border-top:1px solid var(--border);}
+.acc-dropdown-item:first-child{border-top:none;}
+.acc-dropdown-item:hover{background:rgba(76,201,240,.06);}
+.acc-dropdown-item .acc-avatar{width:22px;height:22px;font-size:8px;}
+.acc-dropdown-item .acc-email{font-size:9px;color:var(--text2);}
+.acc-add-row{display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;transition:.15s;border-top:1px solid var(--border);color:var(--blue);}
+.acc-add-row:hover{background:rgba(76,201,240,.06);}
+.acc-add-icon{width:22px;height:22px;border-radius:50%;border:1px dashed rgba(76,201,240,.4);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--blue);flex-shrink:0;}
+.acc-add-label{font-size:9px;letter-spacing:1px;}
+
+/* Botón nueva suscripción en drawer */
+.btn-new-sub{width:100%;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(0,232,122,.08));border:1px solid rgba(124,58,237,.35);color:#a78bfa;font-family:var(--mono);font-size:9px;letter-spacing:2px;padding:12px;border-radius:6px;cursor:pointer;transition:.2s;text-transform:uppercase;margin-top:4px;}
+.btn-new-sub:hover{background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(0,232,122,.14));border-color:var(--purple);}
+
+/* Botón Refrescar fijo al fondo del drawer */
+.drawer-footer{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;}
+.refresh-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;transition:.2s;}
+.refresh-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(76,201,240,.05);}
+.refresh-btn:active{transform:scale(.97);}
+.refresh-icon{font-size:14px;transition:transform .5s;}
+.refresh-btn:hover .refresh-icon{transform:rotate(360deg);}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:10px 18px;font-size:10px;letter-spacing:1px;color:var(--text2);z-index:300;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.green{border-color:rgba(0,232,122,.3);color:var(--green);}
+.toast.red{border-color:rgba(255,59,92,.3);color:var(--red);}
+.toast.blue{border-color:rgba(76,201,240,.3);color:var(--blue);}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="wrap">
+
+  <div class="header">
+    <div>
+      <div class="logo">KEY<em>PASS</em></div>
+      <div class="subtitle">// suscripción mensual</div>
+    </div>
+    <div class="header-right">
+      <div class="profile-pill" id="profile-pill" style="display:none;" onclick="cambiarPerfil()">
+        <span class="pill-email" id="pill-email-text">—</span>
+        <div class="pill-avatar" id="pill-avatar">?</div>
+      </div>
+      <button class="menu-btn" id="menu-btn" style="display:none;" onclick="abrirDrawer()" title="Panel">≡</button>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- SETUP -->
+    <div class="screen active" id="s-setup">
+      <div class="setup-top">
+        <div class="setup-icon-ring">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div class="setup-title">Crear Perfil</div>
+        <div class="setup-sub">Ingresa tu correo para continuar.<br>Se guardará como tu identidad local.</div>
+      </div>
+      <span class="lbl">Correo Electrónico</span>
+      <input type="text" inputmode="email" autocomplete="email" id="setup-email" placeholder="tucorreo@ejemplo.com" style="margin-bottom:6px;" oninput="onSetupInput()" onkeydown="if(event.key==='Enter')guardarPerfil()">
+      <div class="err-hint" id="setup-err"></div>
+      <button class="btn btn-blue" onclick="guardarPerfil()">[ CONTINUAR ]</button>
+      <div class="setup-divider"><span>SEGURO Y PRIVADO</span></div>
+      <div class="trust-row">
+        <div class="trust-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>DATOS LOCALES</div>
+        <div class="trust-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>PAGO PAYPAL</div>
+        <div class="trust-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>KEY INSTANT</div>
+      </div>
+    </div>
+
+    <!-- PAY -->
+    <div class="screen" id="s-pay">
+      <div class="status-bar">
+        <div class="s-dot check" id="s-dot"></div>
+        <div class="s-info">
+          <div class="s-title check" id="s-title">Verificando...</div>
+          <div class="s-meta" id="s-meta">Consultando suscripción</div>
+        </div>
+        <div class="s-key-block" id="s-key-block" style="display:none;">
+          <div class="s-key-val" id="s-key-val">—</div>
+          <div class="s-key-actions">
+            <div class="s-key-exp" id="s-key-exp">—</div>
+            <button class="btn-copy-xs" onclick="copiarStatusKey()">COPIAR</button>
+          </div>
+        </div>
+      </div>
+      <div class="first-seen" id="first-seen" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Primera activación: <span id="first-seen-date" style="color:var(--text2);">—</span></span>
+      </div>
+      <div id="active-info" style="display:none;"></div>
+      <div id="buy-block">
+        <div class="plan-row">
+          <div class="plan-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#kg)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <defs><linearGradient id="kg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#9b5de5"/><stop offset="100%" stop-color="#00e87a"/></linearGradient></defs>
+              <circle cx="7.5" cy="15.5" r="4.5"/><path d="M21 2L15.5 7.5"/><path d="M15.5 7.5L18 10l-2.5 2.5L13 11"/><path d="M15.5 7.5l-4 4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="plan-name">Key Mensual</div>
+            <div class="plan-desc">Acceso completo · 30 días · auto-renovación</div>
+          </div>
+        </div>
+        <div class="feats">
+          <div class="feat"><div class="feat-dot"></div>Script activo por 30 días</div>
+          <div class="feat"><div class="feat-dot"></div>Key generada al instante</div>
+          <div class="feat"><div class="feat-dot"></div>Key vinculada a tu usuario de Roblox</div>
+          <div class="feat"><div class="feat-dot"></div>Renovación automática mensual</div>
+        </div>
+        <div class="price-bar">
+          <div><div class="price-cur">USD</div><div class="price-num">$10</div></div>
+          <div class="price-badge">/ MES</div>
+        </div>
+        <div class="section-divider"></div>
+        <div id="paypal-wrap" class="locked">
+          <div class="lock-msg" id="lock-msg">Verificando estado...</div>
+          <div id="paypal-button-container-P-2K663701UE7233246NHTRACI"></div>
+        </div>
+        <div class="secure">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Pago 100% seguro con PayPal
+        </div>
+        <div class="recover-banner" onclick="showScreen('s-recover')">
+          <div style="flex:1;">
+            <div style="font-size:10px;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;">🔑 Recuperar mi Key</div>
+            <div style="font-size:8px;color:var(--muted);margin-top:2px;">¿Ya pagaste pero no tienes tu key?</div>
+          </div>
+          <span style="font-size:14px;color:var(--blue);opacity:.7;">›</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROCESSING -->
+    <div class="screen" id="s-processing">
+      <div class="proc-wrap">
+        <div class="spinner"></div>
+        <div class="proc-title">Generando Key...</div>
+        <div class="proc-sub">Verificando tu pago con PayPal.<br>Esto toma unos segundos.</div>
+      </div>
+    </div>
+
+    <!-- BIND USERNAME -->
+    <div class="screen" id="s-bind">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div class="bind-icon-ring">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div style="font-family:var(--display);font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:4px;">Vincular Usuario</div>
+        <div style="font-size:10px;color:var(--text2);line-height:1.8;">Solo ese usuario podrá usar la key.</div>
+      </div>
+      <div class="info-note blue" style="margin-bottom:10px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div class="info-note-text"><strong>Tu usuario es privado</strong> — solo se guarda para proteger tu acceso. Nadie más lo ve.</div>
+      </div>
+      <div class="info-note yellow" id="bind-warn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div class="info-note-text" id="bind-warn-text"><strong>Puedes cambiar el nombre</strong> hasta que uses el script por primera vez en Roblox. Después queda fijo para siempre.</div>
+      </div>
+      <div style="height:14px;"></div>
+      <span class="lbl">Nombre de usuario en Roblox</span>
+      <input type="text" id="inp-username" placeholder="TuNombreRoblox" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="margin-bottom:6px;" oninput="onUsernameInput()" onkeydown="if(event.key==='Enter')pedirConfirmacion()">
+      <div class="err-hint" id="bind-err"></div>
+      <button class="btn btn-green" id="btn-bind" onclick="pedirConfirmacion()">[ CONTINUAR ]</button>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="screen" id="s-success">
+      <div class="suc-ring">✓</div>
+      <div class="suc-title">¡Pago Exitoso!</div>
+      <div class="suc-sub">Key generada y vinculada.<br>Cópiala y pégala en el script de Roblox.</div>
+      <div class="info-grid" style="margin-bottom:12px;">
+        <div class="info-row"><span class="ik">Estado</span><span class="iv g">ACTIVO</span></div>
+        <div class="info-row"><span class="ik">Usuario</span><span class="iv" id="res-username">—</span></div>
+        <div class="info-row"><span class="ik">Confirmado</span><span class="iv y" id="res-confirmed">Pendiente — usa el script para confirmar</span></div>
+        <div class="info-row"><span class="ik">Sub ID</span><span class="iv" id="res-subid" style="font-size:8px;word-break:break-all;">—</span></div>
+      </div>
+      <div style="padding:18px 16px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;">
+        <div style="font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Tu Key de Acceso</div>
+        <div id="res-key" style="font-size:20px;font-weight:700;color:#fff;letter-spacing:3px;word-break:break-all;line-height:1.4;text-shadow:0 0 30px rgba(255,255,255,.2);">—</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+          <div style="font-size:8px;color:var(--muted);" id="res-hint">Vinculada a tu cuenta</div>
+          <button id="btn-copy" onclick="copiarKey()" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:#fff;font-family:var(--mono);font-size:8px;letter-spacing:2px;padding:5px 12px;border-radius:3px;cursor:pointer;">COPIAR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECOVER -->
+    <div class="screen" id="s-recover">
+      <div class="rec-header">
+        <div class="rec-icon-wrap">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M21 2L15.5 7.5"/><path d="M15.5 7.5L18 10l-2.5 2.5L13 11"/><path d="M15.5 7.5l-4 4"/></svg>
+        </div>
+        <div>
+          <div style="font-family:var(--display);font-size:24px;color:#fff;letter-spacing:1px;">Recuperar Key</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px;">Busca tu key por email</div>
+        </div>
+      </div>
+      <div class="rec-info-box">Ingresa el email con el que pagaste y te mostramos tu key.</div>
+      <span class="lbl">Email</span>
+      <input type="email" id="recover-email" placeholder="tucorreo@email.com" style="margin-bottom:12px;" onkeydown="if(event.key==='Enter')recuperarPorEmail()">
+      <button class="btn btn-blue" onclick="recuperarPorEmail()" style="margin-bottom:12px;">[ BUSCAR KEY ]</button>
+      <div id="recover-result" style="display:none;"></div>
+      <div style="text-align:center;margin-top:18px;">
+        <span style="font-size:9px;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;" onclick="showScreen('s-pay')">← Volver</span>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="screen" id="s-error">
+      <div style="text-align:center;padding:8px 0;">
+        <div class="err-ring">✗</div>
+        <div class="err-title">Error</div>
+        <div class="err-msg" id="err-msg">Error en el pago.</div>
+        <button class="btn btn-muted" onclick="showScreen('s-pay')">[ REINTENTAR ]</button>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+</div><!-- /wrap -->
+
+<!-- ══ DRAWER PANEL ══ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="cerrarDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-head-top">
+      <div class="drawer-title">Panel</div>
+      <button class="drawer-close" onclick="cerrarDrawer()">✕</button>
+    </div>
+    <div class="drawer-sub">gestión de cuenta</div>
+  </div>
+  <div class="drawer-body">
+
+    <!-- Selector de cuenta compacto -->
+    <div class="drawer-section">👤 Cuenta Activa</div>
+    <div class="acc-selector">
+      <div class="acc-active-row" id="acc-active-row" onclick="toggleAccDropdown()">
+        <div class="acc-avatar" id="acc-active-avatar">?</div>
+        <div class="acc-info">
+          <div class="acc-email" id="acc-active-email">—</div>
+          <div class="acc-badge">● Activa ahora</div>
+        </div>
+        <div class="acc-arrow" id="acc-arrow">▼</div>
+      </div>
+      <div class="acc-dropdown" id="acc-dropdown">
+        <div id="acc-other-list"></div>
+        <div class="acc-add-row" onclick="agregarCuenta()">
+          <div class="acc-add-icon">＋</div>
+          <div class="acc-add-label">Agregar otra cuenta</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nueva suscripción -->
+    <div class="drawer-section" style="margin-top:20px;">🔑 Nueva Suscripción</div>
+    <button class="btn-new-sub" onclick="cerrarDrawer();showScreen('s-pay')">[ COMPRAR NUEVA SUSCRIPCIÓN $10/MES ]</button>
+
+  </div><!-- /drawer-body -->
+
+  <div class="drawer-footer">
+    <button class="refresh-btn" onclick="refrescarTodo()">
+      <span class="refresh-icon">🔄</span>
+      <span>Refrescar página</span>
+    </button>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal-overlay" id="modal-confirm" style="display:none;">
+  <div class="modal">
+    <div class="modal-title">¿Es correcto?</div>
+    <div class="modal-sub">Confirma que este es tu usuario real.<br>Podrás cambiarlo <strong style="color:var(--yellow);">hasta que uses el script por primera vez</strong>.</div>
+    <div class="modal-preview">
+      <div class="mp-lbl">USUARIO A VINCULAR</div>
+      <div class="mp-val" id="modal-username-val">—</div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-muted" onclick="cerrarModal()">[ CORREGIR ]</button>
+      <button class="btn btn-green" onclick="confirmarVincular()">[ SÍ, VINCULAR ]</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=AaKKTC9CXjo1KPUwrriuCKaeC9cS-pmeG6Vr742j9pIDrgjrj7C3aa8KjwOe3K5oN5P44Ft8rIhNq-Sc&vault=true&intent=subscription"></script>
+<script>
+const WORKER_URL   = "https://suscripcionpago.armijosfer2.workers.dev"
+const PLAN_ID      = "P-2K663701UE7233246NHTRACI"
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000
+
+let _pendingKey   = null
+let _pendingSubId = null
+let _toastTimer   = null
+
+// ── Storage ──────────────────────────────────────────────────────
+function dbGet(s,i){try{const r=localStorage.getItem("kp_"+s+"_"+i);return Promise.resolve(r?JSON.parse(r):null)}catch(e){return Promise.resolve(null)}}
+function dbPut(s,o){try{localStorage.setItem("kp_"+s+"_"+o.id,JSON.stringify(o));return Promise.resolve()}catch(e){return Promise.reject(e)}}
+function dbDel(s,i){try{localStorage.removeItem("kp_"+s+"_"+i);return Promise.resolve()}catch(e){return Promise.resolve()}}
+
+// Cuentas múltiples: lista de emails guardados
+function getAllAccounts(){
+  try{
+    const raw=localStorage.getItem("kp_accounts")
+    return raw?JSON.parse(raw):[]
+  }catch(e){return[]}
+}
+function saveAllAccounts(list){
+  try{localStorage.setItem("kp_accounts",JSON.stringify(list))}catch(e){}
+}
+function addAccountToList(email){
+  let list=getAllAccounts()
+  if(!list.includes(email)){list.push(email);saveAllAccounts(list)}
+}
+function removeAccountFromList(email){
+  let list=getAllAccounts().filter(e=>e!==email)
+  saveAllAccounts(list)
+}
+
+// ── Toast ─────────────────────────────────────────────────────────
+function showToast(msg, type=''){
+  const t=document.getElementById('toast')
+  t.textContent=msg
+  t.className='toast'+(type?' '+type:'')
+  t.classList.add('show')
+  clearTimeout(_toastTimer)
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),2800)
+}
+
+// ── Drawer ────────────────────────────────────────────────────────
+function abrirDrawer(){
+  document.getElementById('drawer').classList.add('open')
+  document.getElementById('drawer-overlay').classList.add('open')
+  closeAccDropdown()
+  renderDrawerAccounts()
+}
+function cerrarDrawer(){
+  document.getElementById('drawer').classList.remove('open')
+  document.getElementById('drawer-overlay').classList.remove('open')
+}
+
+let _accDropOpen = false
+function toggleAccDropdown(){
+  _accDropOpen = !_accDropOpen
+  const drop = document.getElementById('acc-dropdown')
+  const arrow = document.getElementById('acc-arrow')
+  const row = document.getElementById('acc-active-row')
+  drop.classList.toggle('open', _accDropOpen)
+  arrow.classList.toggle('open', _accDropOpen)
+  row.classList.toggle('open', _accDropOpen)
+}
+function closeAccDropdown(){
+  _accDropOpen=false
+  document.getElementById('acc-dropdown').classList.remove('open')
+  document.getElementById('acc-arrow').classList.remove('open')
+  document.getElementById('acc-active-row').classList.remove('open')
+}
+
+async function renderDrawerAccounts(){
+  const profile = await dbGet('profile','main')
+  const currentEmail = profile?.email || null
+  if(currentEmail && !getAllAccounts().includes(currentEmail)) addAccountToList(currentEmail)
+  const list = getAllAccounts()
+  // Llenar la fila activa
+  const avatarEl = document.getElementById('acc-active-avatar')
+  const emailEl  = document.getElementById('acc-active-email')
+  if(avatarEl) avatarEl.textContent = (currentEmail||'?')[0].toUpperCase()
+  if(emailEl)  emailEl.textContent  = currentEmail || '—'
+  // Llenar las otras cuentas en el dropdown
+  const othersEl = document.getElementById('acc-other-list')
+  const others   = list.filter(e => e !== currentEmail)
+  if(othersEl){
+    if(others.length === 0){
+      othersEl.innerHTML = ''
+    } else {
+      othersEl.innerHTML = others.map(email => `
+        <div class="acc-dropdown-item" onclick="seleccionarCuenta('${email}')">
+          <div class="acc-avatar" style="width:22px;height:22px;font-size:8px;">${email[0].toUpperCase()}</div>
+          <div class="acc-email">${email}</div>
+        </div>`).join('')
+    }
+  }
+}
+
+async function seleccionarCuenta(email){
+  cerrarDrawer()
+  await dbPut('profile',{id:'main',email})
+  await dbDel('cache','status')
+  document.getElementById('pill-email-text').textContent=email
+  document.getElementById('pill-avatar').textContent=(email||'?')[0].toUpperCase()
+  document.getElementById('recover-email').value=email
+  showToast('Cuenta cambiada a '+email,'blue')
+  showScreen('s-pay')
+  lockPaypal('Verificando estado...')
+  await verificarEstado(email)
+}
+
+async function agregarCuenta(){
+  cerrarDrawer()
+  // Guardar cuenta actual en lista antes de ir a setup
+  const profile=await dbGet('profile','main')
+  if(profile?.email)addAccountToList(profile.email)
+  await dbDel('profile','main')
+  await dbDel('cache','status')
+  document.getElementById('setup-email').value=''
+  document.getElementById('setup-err').textContent=''
+  showScreen('s-setup')
+}
+
+// Refrescar: limpiar caché y recargar estado
+async function refrescarTodo(){
+  cerrarDrawer()
+  showToast('🔄 Actualizando...','blue')
+  await dbDel('cache','status')
+  const profile=await dbGet('profile','main')
+  if(profile?.email){
+    showScreen('s-pay')
+    lockPaypal('Verificando estado...')
+    await verificarEstado(profile.email)
+    showToast('✅ Actualizado correctamente','green')
+  }else{
+    location.reload()
+  }
+}
+
+// ── Pantallas ─────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"))
+  document.getElementById(id).classList.add("active")
+  const isPay=(id==="s-pay")
+  document.getElementById("profile-pill").style.display=isPay?"flex":"none"
+  document.getElementById("menu-btn").style.display=isPay?"flex":"none"
+}
+function fmt(iso){if(!iso)return"—";return new Date(iso).toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"})}
+function isValidEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)}
+function initial(email){return(email||"?")[0].toUpperCase()}
+
+function onSetupInput(){
+  const v=document.getElementById("setup-email").value.trim()
+  document.getElementById("setup-err").textContent=isValidEmail(v)?"":(v.length>3?"Email inválido":"")
+}
+
+async function guardarPerfil(){
+  const el=document.getElementById("setup-email"),err=document.getElementById("setup-err")
+  const email=el.value.trim()
+  if(!email){err.textContent="⚠ Ingresa tu correo";el.focus();return}
+  if(!isValidEmail(email)){err.textContent="⚠ Email inválido";el.focus();return}
+  err.textContent=""
+  try{
+    await dbPut("profile",{id:"main",email})
+    addAccountToList(email)
+    const meta=await dbGet("meta","firstseen")
+    if(!meta)await dbPut("meta",{id:"firstseen",date:new Date().toISOString()})
+    iniciarPantallaPago(email)
+  }catch(e){err.textContent="⚠ Error: "+e.message}
+}
+
+async function cambiarPerfil(){
+  await dbDel("profile","main");await dbDel("cache","status")
+  document.getElementById("setup-email").value=""
+  document.getElementById("setup-err").textContent=""
+  showScreen("s-setup")
+}
+
+async function iniciarPantallaPago(email){
+  document.getElementById("pill-email-text").textContent=email
+  document.getElementById("pill-avatar").textContent=initial(email)
+  document.getElementById("recover-email").value=email
+  showScreen("s-pay");lockPaypal("Verificando estado...")
+  const meta=await dbGet("meta","firstseen")
+  if(meta?.date){document.getElementById("first-seen-date").textContent=fmt(meta.date);document.getElementById("first-seen").style.display="flex"}
+  await verificarEstado(email)
+}
+
+async function verificarEstado(email){
+  setStatusChecking()
+  const cached=await dbGet("cache","status")
+  if(cached&&cached.email===email&&cached.expiry&&(Date.now()-cached.ts)<CACHE_TTL_MS){
+    aplicarEstado(cached);if(cached.expiry)iniciarContador(cached.expiry);return
+  }
+  try{
+    const r1=await fetch(WORKER_URL+"/by-email?email="+encodeURIComponent(email))
+    const d1=await r1.json()
+    if(!d1.ok||!d1.key){
+      const e={id:"status",email,key:null,active:false,ts:Date.now()}
+      await dbPut("cache",e);aplicarEstado(e);return
+    }
+    const r2=await fetch(WORKER_URL+"/verify?key="+encodeURIComponent(d1.key))
+    const d2=await r2.json()
+    const entry={id:"status",email,key:d1.key,expiry:d2.nextBilling||null,active:d2.valid!==false,username:d1.username||null,confirmed:d1.confirmed||false,ts:Date.now()}
+    await dbPut("cache",entry);aplicarEstado(entry)
+    if(entry.expiry)iniciarContador(entry.expiry)
+  }catch(e){
+    if(cached&&cached.email===email){aplicarEstado(cached);if(cached.expiry)iniciarContador(cached.expiry)}
+    else setStatusError()
+  }
+}
+
+let _ci=null
+function iniciarContador(iso){if(_ci)clearInterval(_ci);actualizarContador(iso);_ci=setInterval(()=>actualizarContador(iso),60000)}
+function actualizarContador(iso){
+  const el=document.getElementById("countdown-display");if(!el)return
+  const diff=new Date(iso)-Date.now()
+  if(diff<=0){el.textContent="Vencida";el.style.color="var(--red)";return}
+  const d=Math.floor(diff/(1000*60*60*24)),h=Math.floor((diff%(1000*60*60*24))/(1000*60*60)),m=Math.floor((diff%(1000*60*60))/(1000*60))
+  el.style.color=d>10?"var(--green)":d>3?"var(--yellow)":"var(--red)"
+  el.textContent=d+"d "+h+"h "+m+"m"
+}
+
+function setStatusChecking(){
+  const dot=document.getElementById("s-dot"),t=document.getElementById("s-title"),m=document.getElementById("s-meta")
+  dot.className="s-dot check";t.className="s-title check"
+  t.textContent="Verificando...";m.textContent="Consultando suscripción"
+  document.getElementById("s-key-block").style.display="none";lockPaypal("Verificando...")
+}
+function setStatusError(){
+  const dot=document.getElementById("s-dot"),t=document.getElementById("s-title"),m=document.getElementById("s-meta")
+  dot.className="s-dot red";t.className="s-title red"
+  t.textContent="Sin conexión";m.textContent="No se pudo verificar"
+  document.getElementById("s-key-block").style.display="none";unlockPaypal()
+}
+
+function aplicarEstado(data){
+  const dot=document.getElementById("s-dot"),t=document.getElementById("s-title"),m=document.getElementById("s-meta")
+  const buyBlock=document.getElementById("buy-block"),activeInfo=document.getElementById("active-info")
+  if(data.active&&data.key){
+    dot.className="s-dot green";t.className="s-title green"
+    t.textContent="Suscripción Activa";m.textContent="Pago confirmado — acceso habilitado"
+    document.getElementById("s-key-val").textContent=data.key
+    document.getElementById("s-key-exp").textContent=fmt(data.expiry)
+    document.getElementById("s-key-block").style.display="flex"
+    buyBlock.style.display="none"
+    if(data.expiry)iniciarContador(data.expiry)
+    const diff=data.expiry?new Date(data.expiry)-Date.now():0
+    const days=Math.max(0,Math.floor(diff/(1000*60*60*24)))
+    const pct=Math.min(100,Math.max(0,(days/30)*100))
+    const bc=days>10?"var(--green)":days>3?"var(--yellow)":"var(--red)"
+    const confirmedBadge = data.confirmed
+      ? `<span class="confirmed-badge ok">✓ Confirmado</span>`
+      : `<span class="confirmed-badge pending">⏳ Pendiente — usa el script</span>`
+    activeInfo.style.display="block"
+    activeInfo.innerHTML=`
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--bg);border:1px solid var(--border);border-radius:5px;">
+          <span style="font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Usuario</span>
+          <span style="font-size:11px;color:var(--text);">${data.username?"@"+data.username:"<em style='color:var(--muted);font-style:normal;'>Sin vincular</em>"}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--bg);border:1px solid var(--border);border-radius:5px;">
+          <span style="font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Estado</span>
+          ${confirmedBadge}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 13px;background:var(--bg);border:1px solid var(--border);border-radius:5px;">
+          <span style="font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Vence el</span>
+          <span style="font-size:11px;color:var(--green);">${fmt(data.expiry)}</span>
+        </div>
+        <div style="padding:11px 13px;background:var(--bg);border:1px solid var(--border);border-radius:5px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;">Tiempo restante</span>
+            <span id="countdown-display" style="font-size:12px;font-weight:700;font-family:var(--mono);">—</span>
+          </div>
+          <div style="width:100%;height:3px;background:var(--border2);border-radius:99px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;border-radius:99px;background:linear-gradient(90deg,${bc},var(--blue));transition:width .6s;"></div>
+          </div>
+        </div>
+        ${!data.username?`
+        <div style="display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:rgba(245,197,66,.04);border:1px solid rgba(245,197,66,.18);border-radius:5px;cursor:pointer;" onclick="mostrarBind('${data.key}',false)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div><div style="font-size:9px;color:var(--yellow);letter-spacing:1px;font-weight:700;">⚠ VINCULAR USUARIO</div><div style="font-size:8px;color:#a0905a;margin-top:2px;">Tu key aún no está vinculada.</div></div>
+        </div>`
+        : !data.confirmed?`
+        <div style="display:flex;align-items:flex-start;gap:9px;padding:11px 13px;background:rgba(76,201,240,.04);border:1px solid rgba(76,201,240,.12);border-radius:5px;cursor:pointer;" onclick="mostrarBind('${data.key}',false)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          <div><div style="font-size:9px;color:var(--blue);letter-spacing:1px;font-weight:700;">CAMBIAR USUARIO</div><div style="font-size:8px;color:var(--muted);margin-top:2px;">Aún no usaste el script. Puedes cambiarlo.</div></div>
+        </div>`:""}
+      </div>`
+    if(data.expiry)iniciarContador(data.expiry)
+  }else{
+    dot.className="s-dot red";t.className="s-title red"
+    t.textContent="Sin Suscripción";m.textContent="Sin pago activo — suscríbete abajo"
+    document.getElementById("s-key-block").style.display="none"
+    buyBlock.style.display="block";activeInfo.style.display="none";unlockPaypal()
+  }
+}
+
+function mostrarBind(key, confirmed){
+  _pendingKey=key
+  document.getElementById("inp-username").value=""
+  document.getElementById("bind-err").textContent=""
+  if(confirmed){
+    document.getElementById("bind-warn-text").innerHTML="<strong>No se puede cambiar</strong> — ya usaste el script con este usuario."
+    document.getElementById("bind-warn").className="info-note yellow"
+    document.getElementById("btn-bind").disabled=true
+  }else{
+    document.getElementById("bind-warn-text").innerHTML="<strong>Puedes cambiar el nombre</strong> hasta que uses el script por primera vez. Después queda fijo para siempre."
+    document.getElementById("btn-bind").disabled=false
+  }
+  showScreen("s-bind")
+}
+
+function onUsernameInput(){
+  const v=document.getElementById("inp-username").value.trim()
+  const err=document.getElementById("bind-err")
+  if(v.length>2&&(v.length<3||v.length>20||!/^[a-zA-Z0-9_]+$/.test(v))){
+    err.textContent="⚠ Solo letras, números y _ (3-20 caracteres)"
+  }else{err.textContent=""}
+}
+
+function pedirConfirmacion(){
+  const username=document.getElementById("inp-username").value.trim()
+  const err=document.getElementById("bind-err")
+  if(!username){err.textContent="⚠ Ingresa tu nombre de usuario";return}
+  if(!/^[a-zA-Z0-9_]{3,20}$/.test(username)){err.textContent="⚠ Usuario inválido";return}
+  err.textContent=""
+  document.getElementById("modal-username-val").textContent=username
+  document.getElementById("modal-confirm").style.display="flex"
+}
+
+function cerrarModal(){document.getElementById("modal-confirm").style.display="none"}
+
+async function confirmarVincular(){
+  cerrarModal()
+  const username=document.getElementById("inp-username").value.trim()
+  const err=document.getElementById("bind-err"),btn=document.getElementById("btn-bind")
+  const key=_pendingKey
+  if(!key){err.textContent="⚠ No hay key pendiente";return}
+  btn.disabled=true;btn.textContent="[ VINCULANDO... ]"
+  try{
+    const url = WORKER_URL+"/bind-username"
+    const body = JSON.stringify({key,username})
+    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body})
+    const d=await r.json()
+    if(d.ok){
+      const cached=await dbGet("cache","status")
+      if(cached){cached.username=username;cached.confirmed=false;await dbPut("cache",cached)}
+      if(_pendingSubId){
+        document.getElementById("res-key").textContent=key
+        document.getElementById("res-subid").textContent=_pendingSubId
+        document.getElementById("res-username").textContent="@"+username
+        document.getElementById("res-confirmed").textContent="Pendiente — usa el script para confirmar"
+        document.getElementById("res-hint").textContent="Vinculada a @"+username
+        showScreen("s-success");_pendingSubId=null
+      }else{
+        await dbDel("cache","status")
+        const profile=await dbGet("profile","main")
+        if(profile)await verificarEstado(profile.email)
+        showScreen("s-pay")
+      }
+    }else{
+      const msgs={
+        already_confirmed:"✗ Ya usaste el script — no se puede cambiar.",
+        username_taken:"✗ Ese usuario ya está vinculado a otra key.",
+        key_not_found:"✗ Key no encontrada.",
+        key_inactive:"✗ Key inactiva.",
+        invalid_username:"✗ Usuario inválido.",
+        missing_fields:"✗ Faltan datos."
+      }
+      err.textContent=msgs[d.error]||"✗ Error: "+(d.error||"desconocido")
+    }
+  }catch(e){
+    err.textContent="✗ "+e.name+": "+e.message+" | URL: "+WORKER_URL+"/bind-username | Key: "+(key||"null")
+  }
+  btn.disabled=false;btn.textContent="[ CONTINUAR ]"
+}
+
+function copiarStatusKey(){
+  const key=document.getElementById("s-key-val").textContent
+  navigator.clipboard.writeText(key).catch(()=>{const ta=document.createElement("textarea");ta.value=key;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta)})
+  const b=event.target;b.textContent="✓ OK";setTimeout(()=>b.textContent="COPIAR",2000)
+  showToast('✓ Key copiada','green')
+}
+function lockPaypal(msg){document.getElementById("paypal-wrap").classList.add("locked");const lm=document.getElementById("lock-msg");lm.style.display="flex";lm.textContent=msg||""}
+function unlockPaypal(){document.getElementById("paypal-wrap").classList.remove("locked");document.getElementById("lock-msg").style.display="none"}
+function copiarKey(){
+  const key=document.getElementById("res-key").textContent,btn=document.getElementById("btn-copy")
+  const done=()=>{btn.textContent="✓ OK";btn.style.borderColor="var(--green)";btn.style.color="var(--green)";setTimeout(()=>{btn.textContent="COPIAR";btn.style.borderColor="rgba(255,255,255,.2)";btn.style.color="#fff"},2000)}
+  navigator.clipboard.writeText(key).then(done).catch(()=>{const ta=document.createElement("textarea");ta.value=key;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);done()})
+  showToast('✓ Key copiada al portapapeles','green')
+}
+
+async function recuperarPorEmail(){
+  const email=document.getElementById("recover-email").value.trim()
+  const resDiv=document.getElementById("recover-result")
+  if(!email)return
+  resDiv.style.cssText="display:block;padding:12px;border-radius:4px;font-size:11px;background:var(--bg);border:1px solid var(--border2);color:var(--muted);"
+  resDiv.textContent="Buscando..."
+  try{
+    const r=await fetch(WORKER_URL+"/by-email?email="+encodeURIComponent(email))
+    const data=await r.json()
+    if(data.ok&&data.key){
+      const profile=await dbGet("profile","main")
+      if(profile&&profile.email.toLowerCase()===email.toLowerCase()){
+        await dbPut("cache",{id:"status",email,key:data.key,expiry:data.expiry||null,active:true,username:data.username||null,confirmed:data.confirmed||false,ts:Date.now()})
+      }
+      resDiv.style.cssText="display:block;padding:12px;border-radius:4px;font-size:11px;line-height:1.9;background:rgba(0,232,122,.05);border:1px solid rgba(0,232,122,.22);"
+      resDiv.innerHTML=`
+        <div style="color:var(--green);font-weight:700;margin-bottom:8px;">✓ Key encontrada</div>
+        ${data.username?`<div style="font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:3px;">USUARIO</div><div style="font-size:11px;color:var(--text2);margin-bottom:8px;">@${data.username}</div>`:""}
+        <div style="font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;">TU KEY</div>
+        <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:2px;word-break:break-all;margin-bottom:10px;">${data.key}</div>
+        <button onclick="navigator.clipboard.writeText('${data.key}').then(()=>{this.textContent='✓ Copiada'})"
+          style="width:100%;background:transparent;border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:9px;letter-spacing:2px;padding:9px;border-radius:4px;cursor:pointer;">
+          [ COPIAR KEY ]
+        </button>`
+    }else{
+      resDiv.style.cssText="display:block;padding:12px;border-radius:4px;font-size:11px;background:rgba(255,59,92,.05);border:1px solid rgba(255,59,92,.18);color:var(--red);"
+      resDiv.textContent="✗ No se encontró ninguna key para ese email."
+    }
+  }catch(e){
+    resDiv.style.cssText="display:block;padding:12px;border-radius:4px;font-size:11px;background:rgba(255,59,92,.05);border:1px solid rgba(255,59,92,.18);color:var(--red);"
+    resDiv.textContent="✗ Error de conexión: "+e.name+": "+e.message
+  }
+}
+
+paypal.Buttons({
+  style:{shape:"rect",color:"blue",layout:"vertical",label:"subscribe"},
+  createSubscription:(data,actions)=>actions.subscription.create({plan_id:PLAN_ID}),
+  onApprove:async function(data){
+    showScreen("s-processing")
+    await new Promise(r=>setTimeout(r,2000))
+    try{
+      const profile=await dbGet("profile","main")
+      const email=profile?profile.email:""
+      const r=await fetch(WORKER_URL+"/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subscriptionID:data.subscriptionID,email})})
+      const res=await r.json()
+      if(res.ok&&res.key){
+        await dbPut("cache",{id:"status",email,key:res.key,expiry:res.expiry||null,active:true,username:null,confirmed:false,ts:Date.now()})
+        fetch(WORKER_URL+"/send-email",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,key:res.key,expiry:res.expiry,subscriptionID:data.subscriptionID})}).catch(()=>{})
+        _pendingKey=res.key;_pendingSubId=data.subscriptionID
+        document.getElementById("inp-username").value=""
+        document.getElementById("bind-err").textContent=""
+        document.getElementById("bind-warn-text").innerHTML="<strong>Puedes cambiar el nombre</strong> hasta que uses el script por primera vez. Después queda fijo para siempre."
+        document.getElementById("btn-bind").disabled=false
+        showScreen("s-bind")
+      }else{
+        document.getElementById("err-msg").textContent="Pago recibido pero error al generar key.\nError: "+(res.error||"desconocido")+"\nID: "+data.subscriptionID
+        showScreen("s-error")
+      }
+    }catch(e){document.getElementById("err-msg").textContent="Error de conexión: "+e.message;showScreen("s-error")}
+  },
+  onError:function(err){document.getElementById("err-msg").textContent="Error en el pago. Intenta de nuevo.";showScreen("s-error");console.error(err)}
+}).render("#paypal-button-container-P-2K663701UE7233246NHTRACI")
+
+;(async function init(){
+  const profile=await dbGet("profile","main")
+  if(profile?.email){
+    addAccountToList(profile.email)
+    const meta=await dbGet("meta","firstseen")
+    if(!meta)await dbPut("meta",{id:"firstseen",date:new Date().toISOString()})
+    iniciarPantallaPago(profile.email)
+  }else{showScreen("s-setup")}
+})()
+</script>
+</body>
+</html>
